@@ -1,69 +1,136 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState } from 'react';
+import { useApp } from '@/context/AppContext';
+import { Navbar } from '@/components/Navbar';
+import { StudentPortal } from '@/components/StudentPortal';
+import { MessInchargePortal } from '@/components/MessInchargePortal';
+import { CleaningInchargePortal } from '@/components/CleaningInchargePortal';
+import { MaintenanceInchargePortal } from '@/components/MaintenanceInchargePortal';
+import { SecurityGuardPortal } from '@/components/SecurityGuardPortal';
+import { WardenPortal } from '@/components/WardenPortal';
+import { LoginModal } from '@/components/LoginModal';
+import { CreateHostelModal } from '@/components/CreateHostelModal';
+import { 
+  Building2, 
+  Utensils, 
+  Sparkles, 
+  Wrench, 
+  ShieldCheck, 
+  Crown, 
+  GraduationCap, 
+  Info,
+  X,
+  Plus
+} from 'lucide-react';
 
 export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+  const { currentUser, isAuthenticated, hostel } = useApp();
+  const [showCreateHostelModal, setShowCreateHostelModal] = useState(false);
+  const [showInfoBanner, setShowInfoBanner] = useState(true);
+
+  // If user is not authenticated, show Login Screen (with Create Hostel option)
+  if (!isAuthenticated) {
+    return (
+      <>
+        <LoginModal onOpenCreateHostel={() => setShowCreateHostelModal(true)} />
+        <CreateHostelModal 
+          isOpen={showCreateHostelModal} 
+          onClose={() => setShowCreateHostelModal(false)} 
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+      </>
+    );
+  }
+
+  // Render the portal corresponding to the logged-in role
+  const renderRolePortal = () => {
+    switch (currentUser.role) {
+      case 'chief_warden':
+        return <WardenPortal />;
+      case 'student':
+        return <StudentPortal />;
+      case 'mess_incharge':
+        return <MessInchargePortal />;
+      case 'cleaning_incharge':
+        return <CleaningInchargePortal />;
+      case 'maintenance_incharge':
+        return <MaintenanceInchargePortal />;
+      case 'security_guard':
+        return <SecurityGuardPortal />;
+      default:
+        return <StudentPortal />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      <Navbar onOpenCreateHostel={() => setShowCreateHostelModal(true)} />
+
+      {/* Main Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Anti-Neglect & Direct Routing Guidance Callout */}
+        {showInfoBanner && (
+          <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border border-blue-200/80 rounded-2xl p-4 sm:p-5 shadow-xs relative">
+            <button
+              onClick={() => setShowInfoBanner(false)}
+              className="absolute right-3 top-3 text-gray-400 hover:text-gray-700 p-1"
+              title="Dismiss"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-start gap-3.5 pr-8">
+              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Info className="w-5 h-5" />
+              </div>
+              <div className="space-y-1 text-xs sm:text-sm">
+                <p className="font-bold text-gray-900">
+                  Hostel Management Architecture (Role-Based Logins with Password = Date of Birth):
+                </p>
+                <p className="text-gray-600 leading-relaxed text-xs">
+                  • <strong>Warden creates Hostel:</strong> Configures <strong>1. Units & Rooms</strong>, <strong>2. Mess</strong>, <strong>3. Incharges</strong> (Mess, Water, Cleaning), <strong>4. Student Allocations</strong>, <strong>5. Fees</strong>, <strong>6. Complaints Oversight</strong>.
+                  <br />
+                  • <strong>Student Login:</strong> Enters Student ID (e.g. <code>STU-304</code>) and password = <strong>Date of Birth</strong> (<code>2005-04-12</code>). Views Room details, Mess menu, Fees, Instant 21+ Gate pass, and raises direct complaints.
+                  <br />
+                  • <strong>Incharge Login:</strong> Enters Incharge ID (e.g. <code>INC-MESS</code>) and password = <strong>Date of Birth</strong> (<code>1982-08-14</code>). Resolves food grievances, updates menus, requests grocery permissions from Warden, and logs food inspections!
+                </p>
+
+                <div className="flex flex-wrap items-center gap-3 pt-2 text-xs">
+                  <span className="font-semibold text-blue-900 bg-blue-100/70 px-2 py-0.5 rounded">
+                    Logged in as: <strong>{currentUser.name}</strong> ({currentUser.roleTitle})
+                  </span>
+                  <span className="font-mono text-purple-700 font-bold bg-purple-100/70 px-2 py-0.5 rounded">
+                    Login ID: {currentUser.loginId} • Password (DOB): {currentUser.dateOfBirth}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Dynamic Portal Content */}
+        {renderRolePortal()}
       </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-gray-200 mt-12 py-6 text-xs text-gray-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-blue-600" />
+            <span className="font-bold text-gray-800">{hostel.name}</span>
+            <span>• Direct Incharge Routing & Transparent Grievance Resolution</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span>Units & Rooms • Mess Groceries • Duty Rosters • Instant 21+ Gate Pass</span>
+          </div>
+        </div>
+      </footer>
+
+      {/* CREATE HOSTEL MODAL */}
+      <CreateHostelModal 
+        isOpen={showCreateHostelModal} 
+        onClose={() => setShowCreateHostelModal(false)} 
+      />
     </div>
   );
 }
